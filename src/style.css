@@ -1,0 +1,78 @@
+/* =========================================
+   1. 全局变量定义 (CSS Variables)
+   方便统一管理医院的主题色
+   ========================================= */
+:root {
+  /* 品牌色：医院蓝 */
+  --primary-color: #2563eb;
+  /* 浅蓝背景，用于选中状态 */
+  --primary-light: #eff6ff;
+
+  /* 文字颜色 */
+  --text-main: #333333; /* 主要文字 */
+  --text-secondary: #666666; /* 次要文字 */
+
+  /* 边框颜色 */
+  --border-color: #e5e7eb;
+
+  /* 功能色 */
+  --danger-color: #ef4444; /* 红色（价格） */
+  --success-color: #10b981; /* 绿色（有号） */
+  --disabled-color: #9ca3af; /* 灰色（不可用） */
+}
+
+/* =========================================
+   2. 基础重置 (Reset)
+   ========================================= */
+* {
+  box-sizing: border-box; /* 盒模型设为 border-box，宽高包含 padding/border */
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  /* 字体栈：优先使用系统字体，保证加载速度和清晰度 */
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', Arial, sans-serif;
+  background-color: #f3f4f6; /* 浅灰背景 */
+  color: var(--text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased; /* 字体抗锯齿 */
+}
+
+/* 重置按钮样式 */
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+}
+
+/* 重置列表样式 */
+ul,
+li {
+  list-style: none;
+}
+
+/* =========================================
+   3. Vue 过渡动画类 (Transitions)
+   对应 <transition-group name="list">
+   ========================================= */
+/* 元素进入过程 和 离开过程 的过渡属性 */
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.4s ease;
+}
+
+/* 元素进入前 和 离开后 的状态 */
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateY(20px); /* 向下偏移 20px */
+}
+
+/* 元素在列表移动时的平滑过渡 (Vue 3 特性) */
+.list-move {
+  transition: transform 0.4s ease;
+}

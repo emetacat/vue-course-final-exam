@@ -3,7 +3,7 @@
     <li v-for="dept in departments" :key="dept.id" class="dept-item">
       <!-- 通信(Emit): 点击触发 'select-dept' 事件，传递科室ID给父组件 -->
       <button
-        @click="$emit('select-dept', dept.id)"
+        @click="handleClick(dept.id)"
         :class="['dept-btn', { active: selectedId === dept.id }]">
         {{ dept.name }}
       </button>
@@ -19,10 +19,20 @@ export default {
     departments: { type: Array, required: true },
     selectedId: { type: Number, required: true },
   },
+  methods: {
+    /**
+     * 逻辑功能：响应科室按钮点击
+     * 通信(Emit): 触发 'select-dept' 事件，将选中科室ID传递给父组件 (App.vue)
+     */
+    handleClick(id) {
+      this.$emit('select-dept', id)
+    },
+  },
 }
 </script>
 
 <style scoped>
+/* 样式保持不变 */
 .dept-list {
   display: flex;
   flex-direction: column;

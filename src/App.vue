@@ -3,12 +3,13 @@
     <!-- 顶部导航 -->
     <!-- 通信: 
          1. Props (父 -> 子): 传递 campuses, activeCampus, title
-         2. v-model (双向): 绑定 activeCampus (监听 update:activeCampus 事件)
+         2. v-on (子 -> 父): 监听 update-active-campus 事件更新 activeCampus (替代 v-model)
     -->
     <AppHeader
       :campuses="campuses"
-      v-model:active-campus="currentCampus"
-      :title="appTitle" />
+      :active-campus="currentCampus"
+      :title="appTitle"
+      @update-active-campus="handleCampusChange" />
 
     <main class="main-content">
       <!-- 左侧：科室列表 (侧边栏) -->
@@ -18,7 +19,7 @@
         </div>
         <!-- 通信:
              1. Props (父 -> 子): 传递 departments, selectedId
-             2. Event (子 -> 父): 监听 @select-dept 事件
+             2. v-on (子 -> 父): 监听 select-dept 事件
         -->
         <DeptList
           :departments="departments"
@@ -30,10 +31,13 @@
       <section class="content-area">
         <!-- 日期切换 -->
         <!-- 通信:
-             1. Props (父 -> 子): 传递 days
-             2. v-model (双向): 绑定 currentDayIndex (监听 update:modelValue 事件)
+             1. Props (父 -> 子): 传递 days, selectedIndex
+             2. v-on (子 -> 父): 监听 update-day-index 事件更新 currentDayIndex (替代 v-model)
         -->
-        <DateTabs :days="fixedDays" v-model="currentDayIndex" />
+        <DateTabs
+          :days="fixedDays"
+          :selected-index="currentDayIndex"
+          @update-day-index="handleDayChange" />
 
         <!-- 医生列表展示区 -->
         <div class="doctors-panel">
@@ -43,9 +47,6 @@
               <span>{{ currentDeptName }}</span> -
               <span>{{ currentDayName }}</span> 医生列表
             </h2>
-            <span class="count-text"
-              >共找到 {{ filteredDoctors.length }} 位医生</span
-            >
           </div>
 
           <!-- 列表为空时 -->
@@ -59,7 +60,7 @@
             <transition-group name="list">
               <!-- 通信:
                    1. Props (父 -> 子): 传递 doctor 对象
-                   2. Event (子 -> 父): 监听 @book 事件，接收子组件传回的 doctor 对象
+                   2. v-on (子 -> 父): 监听 book 事件，接收子组件传回的 doctor 对象
               -->
               <DoctorCard
                 v-for="doc in filteredDoctors"
@@ -107,7 +108,6 @@ export default {
       campuses: ['西院区', '东院区'],
       currentCampus: '西院区',
 
-      // 对象数组 - 科室列表
       departments: [
         { id: 101, name: '心血管内科' },
         { id: 102, name: '呼吸与危重症医学科' },
@@ -128,7 +128,6 @@ export default {
         { date: '11-28', week: '周五' },
       ],
 
-      // TODO
       // 101-心血管内科
       allDoctors: [
         {
@@ -141,6 +140,7 @@ export default {
           fee: 150,
           available: true,
           tickets: 10,
+          totalTickets: 10,
           avatar: imgDr1,
           bio: '擅长心血管内科疑难疾病的临床诊断及治疗。尤其是冠心病、高血压、心律失常等疾病的诊断和治疗。',
         },
@@ -154,6 +154,7 @@ export default {
           fee: 35,
           available: false,
           tickets: 0,
+          totalTickets: 10,
           avatar: imgDr2,
           bio: '擅长心血管疑难和危重病人诊治，尤其冠心病、肥厚型心肌病和二尖瓣、主动脉瓣病变的介入治疗。',
         },
@@ -167,6 +168,7 @@ export default {
           fee: 50,
           available: true,
           tickets: 5,
+          totalTickets: 5,
           avatar: imgDr3,
           bio: '擅长领域：心律失常如室上性心动过速、心房颤动、心房扑动的射频消融治疗、起搏器安装，以及心血管内科常见病的诊治。',
         },
@@ -180,17 +182,52 @@ export default {
           fee: 12,
           available: true,
           tickets: 50,
+          totalTickets: 50,
           avatar: imgDr4,
           bio: '擅长心血管疾病的诊治，尤其擅长房颤、房速、室早、室上速及室速等复杂心律失常的导管消融，房颤左心耳封堵，缓慢心律失常的起搏治疗。',
         },
-
-        // 102-呼吸与危重症医学科
-
-        // 103-消化内科
-
-        // 104-手外科
-
-        // 105-神经外科
+        {
+          id: 5,
+          name: '吴翔',
+          campus: '东院区',
+          deptId: 101,
+          dayIdx: 1,
+          title: '主任医师',
+          fee: 150,
+          available: true,
+          tickets: 10,
+          totalTickets: 10, // 补全：totalTickets
+          avatar: imgDr1,
+          bio: '擅长心血管内科疑难疾病的临床诊断及治疗。尤其是冠心病、高血压、心律失常等疾病的诊断和治疗。',
+        },
+        {
+          id: 6,
+          name: '吴翔',
+          campus: '西院区',
+          deptId: 101,
+          dayIdx: 2,
+          title: '主任医师',
+          fee: 150,
+          available: true,
+          tickets: 10,
+          totalTickets: 10, // 补全：totalTickets
+          avatar: imgDr1,
+          bio: '擅长心血管内科疑难疾病的临床诊断及治疗。尤其是冠心病、高血压、心律失常等疾病的诊断和治疗。',
+        },
+        {
+          id: 7,
+          name: '施林生',
+          campus: '西院区',
+          deptId: 101,
+          dayIdx: 1,
+          title: '主治医师',
+          fee: 12,
+          available: true,
+          tickets: 50,
+          totalTickets: 50, // 补全：totalTickets
+          avatar: imgDr4,
+          bio: '擅长心血管疾病的诊治，尤其擅长房颤、房速、室早、室上速及室速等复杂心律失常的导管消融，房颤左心耳封堵，缓慢心律失常的起搏治疗。',
+        },
       ],
     }
   },
@@ -220,20 +257,42 @@ export default {
   },
 
   methods: {
+    /**
+     * 逻辑功能：更新当前选中的院区
+     * 通信监听：监听子组件 AppHeader 派发的 update-active-campus 事件
+     * 来源组件：AppHeader.vue
+     */
+    handleCampusChange(camp) {
+      this.currentCampus = camp
+    },
+
+    /**
+     * 逻辑功能：更新当前选中的科室ID
+     * 通信监听：监听子组件 DeptList 派发的 select-dept 事件
+     * 来源组件：DeptList.vue
+     */
     handleDeptChange(id) {
       this.currentDeptId = id
     },
 
-    handleBooking(doctor) {
-      // 检查余号逻辑
-      if (doctor.tickets <= 0) {
-        window.alert('非常抱歉，该医生已无余号。')
-        return
-      }
+    /**
+     * 逻辑功能：更新当前选中的日期索引
+     * 通信监听：监听子组件 DateTabs 派发的 update-day-index 事件
+     * 来源组件：DateTabs.vue
+     */
+    handleDayChange(index) {
+      this.currentDayIndex = index
+    },
 
+    /**
+     * 逻辑功能：处理预约挂号逻辑，包括确认弹窗和数据更新（扣减余号、计算排队号）
+     * 通信监听：监听子组件 DoctorCard 派发的 book 事件
+     * 来源组件：DoctorCard.vue
+     */
+    handleBooking(doctor) {
       // 原生 Confirm
       const isConfirmed = window.confirm(
-        `【预约确认】\n\n医生：${doctor.name}\n职称：${doctor.title}\n余号：${doctor.tickets}\n挂号费：¥${doctor.fee}\n\n点击“确定”完成挂号。`
+        `【预约确认】\n\n医生：${doctor.name}\n职称：${doctor.title}\n挂号费：¥${doctor.fee}\n\n点击“确定”完成挂号。`
       )
 
       if (isConfirmed) {
@@ -248,15 +307,20 @@ export default {
             target.available = false
           }
 
+          // 计算正序序号
+          const rank = target.totalTickets - target.tickets
+
           window.alert(
-            `预约成功！\n您是该医生的倒数第 ${
-              target.tickets + 1
-            } 位患者。\n请按时就诊。`
+            `预约成功！\n您是该医生的第 ${rank} 位患者。\n请按时就诊。`
           )
         }
       }
     },
 
+    /**
+     * 逻辑功能：根据医生职称返回对应的样式类名
+     * 辅助方法：用于 DoctorCard 插槽内的样式动态绑定
+     */
     getTitleClass(title) {
       if (title.includes('主任')) return 'tag-blue'
       if (title.includes('主治')) return 'tag-green'
@@ -267,6 +331,7 @@ export default {
 </script>
 
 <style scoped>
+/* 样式保持不变 */
 /* 布局 */
 #app-layout {
   min-height: 100vh;

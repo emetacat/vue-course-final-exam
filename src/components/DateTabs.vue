@@ -1,12 +1,12 @@
 <template>
   <div class="date-tabs-container">
     <div class="tabs-wrapper">
-      <!-- 通信(Emit): 点击触发 'update:modelValue' 事件 -> 更新父组件 v-model 绑定的数据 -->
+      <!-- 通信(Emit): 点击触发 'update-day-index' 事件 -> 更新父组件对应的数据 -->
       <div
         v-for="(day, index) in days"
         :key="index"
-        @click="$emit('update:modelValue', index)"
-        :class="['date-card', { active: modelValue === index }]">
+        @click="handleClick(index)"
+        :class="['date-card', { active: selectedIndex === index }]">
         <span class="date-text">{{ day.date }}</span>
         <span class="week-text">{{ day.week }}</span>
       </div>
@@ -17,16 +17,25 @@
 <script>
 export default {
   name: 'DateTabs',
-  // 通信(Props): 接收父组件传递的日期数据
-  // 通信(v-model): modelValue 是 Vue3 v-model 的默认 prop 名称
+  // 通信(Props): 接收父组件传递的日期数据和当前选中的索引
   props: {
     days: { type: Array, required: true },
-    modelValue: { type: Number, required: true },
+    selectedIndex: { type: Number, required: true },
+  },
+  methods: {
+    /**
+     * 逻辑功能：响应日期卡片点击
+     * 通信(Emit): 触发 'update-day-index' 事件，将选中日期索引传递给父组件 (App.vue)
+     */
+    handleClick(index) {
+      this.$emit('update-day-index', index)
+    },
   },
 }
 </script>
 
 <style scoped>
+/* 样式保持不变 */
 .date-tabs-container {
   background-color: white;
   padding: 10px;

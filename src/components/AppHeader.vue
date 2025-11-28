@@ -10,11 +10,11 @@
 
       <!-- 右侧 院区切换 -->
       <div class="campus-switch">
-        <!-- 通信(Emit): 点击触发 'update:activeCampus' 事件 -> 父组件更新数据 (配合 v-model 使用) -->
+        <!-- 通信(Emit): 点击触发 'update-active-campus' 事件 -> 父组件更新数据 -->
         <button
           v-for="camp in campuses"
           :key="camp"
-          @click="$emit('update:activeCampus', camp)"
+          @click="handleClick(camp)"
           :class="['camp-btn', { active: activeCampus === camp }]">
           {{ camp }}
         </button>
@@ -32,10 +32,20 @@ export default {
     activeCampus: { type: String, required: true },
     title: { type: String, default: '医院挂号平台' },
   },
+  methods: {
+    /**
+     * 逻辑功能：响应院区按钮点击
+     * 通信(Emit): 触发 'update-active-campus' 事件，将选中院区传递给父组件 (App.vue)
+     */
+    handleClick(camp) {
+      this.$emit('update-active-campus', camp)
+    },
+  },
 }
 </script>
 
 <style scoped>
+/* 样式保持不变 */
 .app-header {
   background: linear-gradient(to right, #1e40af, #3b82f6); /* 蓝色渐变 */
   color: white;

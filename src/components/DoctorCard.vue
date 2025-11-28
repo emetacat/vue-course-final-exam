@@ -46,7 +46,7 @@
 
         <!-- 通信(Emit): 点击触发 'book' 事件，将当前医生对象传递给父组件 -->
         <button
-          @click="$emit('book', doctor)"
+          @click="handleBookClick"
           :disabled="!doctor.available"
           :class="[
             'book-btn',
@@ -67,10 +67,20 @@ export default {
   props: {
     doctor: { type: Object, required: true },
   },
+  methods: {
+    /**
+     * 逻辑功能：响应预约按钮点击
+     * 通信(Emit): 触发 'book' 事件，将当前医生对象数据传递给父组件 (App.vue)
+     */
+    handleBookClick() {
+      this.$emit('book', this.doctor)
+    },
+  },
 }
 </script>
 
 <style scoped>
+/* 样式保持不变 */
 .doctor-card {
   background: white;
   border: 1px solid var(--border-color);

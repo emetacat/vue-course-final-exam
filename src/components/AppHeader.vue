@@ -45,7 +45,6 @@ export default {
 </script>
 
 <style scoped>
-/* 样式保持不变 */
 .app-header {
   background: linear-gradient(to right, #1e40af, #3b82f6); /* 蓝色渐变 */
   color: white;
@@ -70,14 +69,13 @@ export default {
   gap: 12px;
 }
 
-/* 修改：Logo 图片样式适配 */
 .logo-img {
-  width: 40px; /* 稍微加大尺寸 */
+  width: 40px;
   height: 40px;
-  border-radius: 50%; /* 圆形，如不需要可改为 4px 或去掉 */
-  object-fit: cover; /* 保持比例填充 */
-  background-color: white; /* 图片加载前的背景色 */
-  border: 2px solid rgba(255, 255, 255, 0.2); /* 增加一个淡淡的边框使其在蓝色背景上更协调 */
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: white;
+  border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .app-title {

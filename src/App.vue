@@ -1,117 +1,127 @@
 <template>
   <div id="app-layout">
-    <!-- 顶部导航 -->
-    <!-- 通信: 
-         1. Props (父 -> 子): 传递 campuses, activeCampus, title
-         2. v-on (子 -> 父): 监听 update-active-campus 事件更新 activeCampus (替代 v-model)
-    -->
-    <AppHeader
-      :campuses="campuses"
-      :active-campus="currentCampus"
-      :title="appTitle"
-      @update-active-campus="handleCampusChange" />
+    <!-- 视图切换逻辑：未登录显示 Login 组件，已登录显示主界面 -->
 
-    <main class="main-content">
-      <!-- 左侧：科室列表 (侧边栏) -->
-      <aside class="sidebar">
-        <div class="sidebar-header">
-          <i class="fas fa-hospital-user"></i> 选择科室
-        </div>
-        <!-- 通信:
-             1. Props (父 -> 子): 传递 departments, selectedId
-             2. v-on (子 -> 父): 监听 select-dept 事件
-        -->
-        <DeptList
-          :departments="departments"
-          :selected-id="currentDeptId"
-          @select-dept="handleDeptChange" />
-      </aside>
+    <!-- 1. 登录界面 -->
+    <!-- 通信(v-on): 监听 Login 组件触发的 login 事件 -->
+    <Login v-if="!isLoggedIn" @login="handleLogin" />
 
-      <!-- 右侧：主要操作区 -->
-      <section class="content-area">
-        <!-- 日期切换 -->
-        <!-- 通信:
-             1. Props (父 -> 子): 传递 days, selectedIndex
-             2. v-on (子 -> 父): 监听 update-day-index 事件更新 currentDayIndex (替代 v-model)
-        -->
-        <DateTabs
-          :days="fixedDays"
-          :selected-index="currentDayIndex"
-          @update-day-index="handleDayChange" />
+    <!-- 2. 主界面 (挂号系统) -->
+    <template v-else>
+      <!-- 顶部导航 -->
+      <!-- 通信: 
+           1. Props (父 -> 子): 传递 campuses, activeCampus, title
+           2. v-on (子 -> 父): 监听 update-active-campus 事件更新 activeCampus
+      -->
+      <AppHeader
+        :campuses="campuses"
+        :active-campus="currentCampus"
+        :title="appTitle"
+        @update-active-campus="handleCampusChange" />
 
-        <!-- 医生列表展示区 -->
-        <div class="doctors-panel">
-          <div class="panel-header">
-            <h2 class="panel-title">
-              <span class="highlight">{{ currentCampus }}</span> -
-              <span>{{ currentDeptName }}</span> -
-              <span>{{ currentDayName }}</span> 医生列表
-            </h2>
+      <main class="main-content">
+        <!-- 左侧：科室列表 (侧边栏) -->
+        <aside class="sidebar">
+          <div class="sidebar-header">
+            <i class="fas fa-hospital-user"></i> 选择科室
+          </div>
+          <!-- 通信:
+               1. Props (父 -> 子): 传递 departments, selectedId
+               2. v-on (子 -> 父): 监听 select-dept 事件
+          -->
+          <DeptList
+            :departments="departments"
+            :selected-id="currentDeptId"
+            @select-dept="handleDeptChange" />
+        </aside>
+
+        <!-- 右侧：主要操作区 -->
+        <section class="content-area">
+          <!-- 欢迎条 -->
+          <div class="welcome-bar">
+            <span>欢迎您，{{ currentUser.username }}</span>
+            <button @click="handleLogout" class="logout-btn">退出</button>
           </div>
 
-          <!-- 列表为空时 -->
-          <div v-if="filteredDoctors.length === 0" class="empty-state">
-            <i class="fas fa-user-md empty-icon"></i>
-            <p>当前筛选条件下暂无出诊医生</p>
-          </div>
+          <!-- 日期切换 -->
+          <!-- 通信:
+               1. Props (父 -> 子): 传递 days, selectedIndex
+               2. v-on (子 -> 父): 监听 update-day-index 事件更新 currentDayIndex
+          -->
+          <DateTabs
+            :days="fixedDays"
+            :selected-index="currentDayIndex"
+            @update-day-index="handleDayChange" />
 
-          <!-- 医生网格 -->
-          <div v-else class="doctors-grid">
-            <!-- 通信:
-                  1. Props (父 -> 子): 传递 doctor 对象
-                  2. v-on (子 -> 父): 监听 book 事件，接收子组件传回的 doctor 对象
-            -->
-            <DoctorCard
-              v-for="doc in filteredDoctors"
-              :key="doc.id"
-              :doctor="doc"
-              @book="handleBooking">
-              <!-- 通信(Slot): 插槽 -> 父组件向子组件分发 HTML 内容 (职称样式) -->
-              <template #title-badge>
-                <span :class="['title-tag', getTitleClass(doc.title)]">
-                  {{ doc.title }}
-                </span>
-              </template>
-            </DoctorCard>
+          <!-- 医生列表展示区 -->
+          <div class="doctors-panel">
+            <div class="panel-header">
+              <h2 class="panel-title">
+                <span class="highlight">{{ currentCampus }}</span> -
+                <span>{{ currentDeptName }}</span> -
+                <span>{{ currentDayName }}</span> 医生列表
+              </h2>
+            </div>
+
+            <!-- 列表为空时 -->
+            <div v-if="filteredDoctors.length === 0" class="empty-state">
+              <i class="fas fa-user-md empty-icon"></i>
+              <p>当前筛选条件下暂无出诊医生</p>
+            </div>
+
+            <!-- 医生网格 -->
+            <div v-else class="doctors-grid">
+              <!-- 通信:
+                   1. Props (父 -> 子): 传递 doctor 对象
+                   2. v-on (子 -> 父): 监听 book 事件，接收子组件传回的 doctor 对象
+              -->
+              <DoctorCard
+                v-for="doc in filteredDoctors"
+                :key="doc.id"
+                :doctor="doc"
+                @book="handleBooking">
+                <!-- 通信(Slot): 插槽 -> 父组件向子组件分发 HTML 内容 (职称样式) -->
+                <template #title-badge>
+                  <span :class="['title-tag', getTitleClass(doc.title)]">
+                    {{ doc.title }}
+                  </span>
+                </template>
+              </DoctorCard>
+            </div>
           </div>
-        </div>
-      </section>
-    </main>
+        </section>
+      </main>
+    </template>
   </div>
 </template>
 
 <script>
+import Login from './components/Login.vue'
 import AppHeader from './components/AppHeader.vue'
 import DeptList from './components/DeptList.vue'
 import DateTabs from './components/DateTabs.vue'
 import DoctorCard from './components/DoctorCard.vue'
 
-// --- 1. 静态资源引入 ---
-// 101 心血管内科
 import img101_1 from './assets/心血管内科-吴翔.jpg'
 import img101_2 from './assets/心血管内科-盛红专.jpg'
 import img101_3 from './assets/心血管内科-张剑.jpg'
 import img101_4 from './assets/心血管内科-施林生.jpg'
 
-// 102 呼吸与危重症医学科
 import img102_1 from './assets/呼吸与危重症医学科-倪松石.jpg'
 import img102_2 from './assets/呼吸与危重症医学科-冯健.jpg'
 import img102_3 from './assets/呼吸与危重症医学科-许立芹.jpg'
 import img102_4 from './assets/呼吸与危重症医学科-周晓宇.jpg'
 
-// 103 消化内科
 import img103_1 from './assets/消化内科-倪润洲.jpg'
 import img103_2 from './assets/消化内科-陆翠华.jpg'
 import img103_3 from './assets/消化内科-石建群.jpg'
 import img103_4 from './assets/消化内科-俞智华.jpg'
 
-// 104 手外科
 import img104_1 from './assets/手外科-谭军.jpg'
 import img104_2 from './assets/手外科-邓爱东.jpg'
 import img104_3 from './assets/手外科-龚炎培.jpg'
 import img104_4 from './assets/手外科-茅天.jpg'
 
-// 105 神经外科
 import img105_1 from './assets/神经外科-施炜.jpg'
 import img105_2 from './assets/神经外科-陈建.jpg'
 import img105_3 from './assets/神经外科-杨柳.jpg'
@@ -120,6 +130,7 @@ import img105_4 from './assets/神经外科-苏星.jpg'
 export default {
   name: 'App',
   components: {
+    Login,
     AppHeader,
     DeptList,
     DateTabs,
@@ -127,10 +138,15 @@ export default {
   },
   data() {
     return {
+      // 用户登录状态
+      isLoggedIn: false,
+      currentUser: null,
+
       appTitle: '南通大学附属医院',
       campuses: ['西院区', '东院区'],
       currentCampus: '西院区',
 
+      // 对象数组 - 科室列表
       departments: [
         { id: 101, name: '心血管内科' },
         { id: 102, name: '呼吸与危重症医学科' },
@@ -156,22 +172,20 @@ export default {
     }
   },
 
+  // 生命周期钩子
   created() {
-    // 初始化时生成全覆盖的模拟数据
+    // 自动生成全覆盖的模拟数据
     this.generateFullSchedule()
   },
 
   computed: {
-    // 计算属性：当前选中的科室名称
     currentDeptName() {
       const dept = this.departments.find((d) => d.id === this.currentDeptId)
       return dept ? dept.name : ''
     },
-    // 计算属性：当前选中的日期显示文本
     currentDayName() {
       return this.fixedDays[this.currentDayIndex]?.week || ''
     },
-    // 计算属性：核心筛选逻辑 (院区 + 科室 + 日期)
     filteredDoctors() {
       return this.allDoctors
         .filter((doc) => {
@@ -190,12 +204,26 @@ export default {
 
   methods: {
     /**
-     * 逻辑功能：生成覆盖所有院区、科室、日期的排班数据
-     * 实现细节：
-     * 1. 定义各科室的医生档案池(Profiles)。
-     * 2. 遍历 2个院区 * 5个科室 * 7天。
-     * 3. 每个时间段随机(或轮询)分配 2-3 名医生。
+     * 逻辑功能：处理用户登录
+     * 参数：user (Object) - 包含用户名的对象
+     * 来源组件：Login.vue
      */
+    handleLogin(user) {
+      this.currentUser = user
+      this.isLoggedIn = true
+    },
+
+    /**
+     * 逻辑功能：处理用户退出
+     */
+    handleLogout() {
+      if (confirm('确定要退出登录吗？')) {
+        this.currentUser = null
+        this.isLoggedIn = false
+      }
+    },
+
+    // ... (generateFullSchedule 方法保持不变) ...
     generateFullSchedule() {
       // 医生档案池配置
       const doctorProfiles = {
@@ -362,8 +390,6 @@ export default {
 
           // 遍历未来7天
           this.fixedDays.forEach((_, dayIdx) => {
-            // 策略：每天安排 2-3 人，轮询使用医生档案
-            // 利用 dayIdx 和 dept.id 制造偏移，让不同日期的医生组合看起来不一样
             const count = dayIdx % 2 === 0 ? 3 : 2
             const startIdx = (dept.id + dayIdx) % profiles.length
 
@@ -371,7 +397,6 @@ export default {
               const profileIndex = (startIdx + i) % profiles.length
               const profile = profiles[profileIndex]
 
-              // 模拟票数：为了演示，随机给 0-20 张票
               const totalTickets = [0, 5, 10, 20, 30][(idCounter + i) % 5]
               const tickets = totalTickets // 初始剩余等于总数
 
@@ -397,57 +422,33 @@ export default {
       this.allDoctors = generatedData
     },
 
-    /**
-     * 逻辑功能：更新当前选中的院区
-     * 通信监听：监听子组件 AppHeader 派发的 update-active-campus 事件
-     * 来源组件：AppHeader.vue
-     */
     handleCampusChange(camp) {
       this.currentCampus = camp
     },
 
-    /**
-     * 逻辑功能：更新当前选中的科室ID
-     * 通信监听：监听子组件 DeptList 派发的 select-dept 事件
-     * 来源组件：DeptList.vue
-     */
     handleDeptChange(id) {
       this.currentDeptId = id
     },
 
-    /**
-     * 逻辑功能：更新当前选中的日期索引
-     * 通信监听：监听子组件 DateTabs 派发的 update-day-index 事件
-     * 来源组件：DateTabs.vue
-     */
     handleDayChange(index) {
       this.currentDayIndex = index
     },
 
-    /**
-     * 逻辑功能：处理预约挂号逻辑，包括确认弹窗和数据更新（扣减余号、计算排队号）
-     * 通信监听：监听子组件 DoctorCard 派发的 book 事件
-     * 来源组件：DoctorCard.vue
-     */
     handleBooking(doctor) {
-      // 原生 Confirm
       const isConfirmed = window.confirm(
         `【预约确认】\n\n医生：${doctor.name}\n职称：${doctor.title}\n挂号费：¥${doctor.fee}\n\n点击“确定”完成挂号。`
       )
 
       if (isConfirmed) {
-        // 更新数据状态：找到原数组中的对象进行修改
         const target = this.allDoctors.find((d) => d.id === doctor.id)
 
         if (target) {
-          target.tickets = target.tickets - 1 // 余号减 1
+          target.tickets = target.tickets - 1
 
-          // 如果减完之后是0，自动设为不可约
           if (target.tickets <= 0) {
             target.available = false
           }
 
-          // 计算正序序号 (总号源 - 当前剩余号源)
           const rank = target.totalTickets - target.tickets
 
           window.alert(
@@ -457,10 +458,6 @@ export default {
       }
     },
 
-    /**
-     * 逻辑功能：根据医生职称返回对应的样式类名
-     * 辅助方法：用于 DoctorCard 插槽内的样式动态绑定
-     */
     getTitleClass(title) {
       if (title.includes('主任')) return 'tag-blue'
       if (title.includes('主治')) return 'tag-green'
@@ -471,7 +468,6 @@ export default {
 </script>
 
 <style scoped>
-/* 布局 */
 #app-layout {
   min-height: 100vh;
   display: flex;
@@ -488,7 +484,6 @@ export default {
   gap: 20px;
 }
 
-/* 左侧侧边栏 */
 .sidebar {
   width: 240px;
   background: white;
@@ -512,12 +507,40 @@ export default {
   border-bottom: 1px solid #e5e7eb;
 }
 
+.welcome-bar {
+  background-color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #374151;
+  font-weight: 500;
+}
+
+.logout-btn {
+  background-color: #f3f4f6;
+  color: #ef4444;
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s;
+}
+
+.logout-btn:hover {
+  background-color: #fee2e2;
+  border-color: #fecaca;
+}
+
 /* 右侧内容区 */
 .content-area {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-width: 0; /* 关键：防止 grid 撑开 flex */
+  min-width: 0;
 }
 
 .doctors-panel {
@@ -552,14 +575,12 @@ export default {
   color: #6b7280;
 }
 
-/* 医生 Grid 布局 */
 .doctors-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 20px;
 }
 
-/* 空状态 */
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -575,7 +596,6 @@ export default {
   opacity: 0.5;
 }
 
-/* 职称 Tag 样式 */
 .title-tag {
   font-size: 12px;
   padding: 1px 6px;
@@ -600,7 +620,6 @@ export default {
   background-color: #f9fafb;
 }
 
-/* 响应式布局 */
 @media (max-width: 768px) {
   .main-content {
     flex-direction: column;
@@ -614,7 +633,7 @@ export default {
   }
 
   .doctors-grid {
-    grid-template-columns: 1fr; /* 手机端单列 */
+    grid-template-columns: 1fr;
   }
 }
 </style>

@@ -88,7 +88,7 @@ import DeptList from './components/DeptList.vue'
 import DateTabs from './components/DateTabs.vue'
 import DoctorCard from './components/DoctorCard.vue'
 
-// 引入图片
+// 引入图片 (4张基础素材)
 import imgDr1 from './assets/心血管内科-吴翔.jpg'
 import imgDr2 from './assets/心血管内科-盛红专.jpg'
 import imgDr3 from './assets/心血管内科-张剑.jpg'
@@ -108,6 +108,7 @@ export default {
       campuses: ['西院区', '东院区'],
       currentCampus: '西院区',
 
+      // 对象数组 - 科室列表
       departments: [
         { id: 101, name: '心血管内科' },
         { id: 102, name: '呼吸与危重症医学科' },
@@ -128,108 +129,14 @@ export default {
         { date: '11-28', week: '周五' },
       ],
 
-      // 101-心血管内科
-      allDoctors: [
-        {
-          id: 1,
-          name: '吴翔',
-          campus: '西院区',
-          deptId: 101,
-          dayIdx: 0,
-          title: '主任医师',
-          fee: 150,
-          available: true,
-          tickets: 10,
-          totalTickets: 10,
-          avatar: imgDr1,
-          bio: '擅长心血管内科疑难疾病的临床诊断及治疗。尤其是冠心病、高血压、心律失常等疾病的诊断和治疗。',
-        },
-        {
-          id: 2,
-          name: '盛红专',
-          campus: '西院区',
-          deptId: 101,
-          dayIdx: 0,
-          title: '主任医师',
-          fee: 35,
-          available: false,
-          tickets: 0,
-          totalTickets: 10,
-          avatar: imgDr2,
-          bio: '擅长心血管疑难和危重病人诊治，尤其冠心病、肥厚型心肌病和二尖瓣、主动脉瓣病变的介入治疗。',
-        },
-        {
-          id: 3,
-          name: '张剑',
-          campus: '东院区',
-          deptId: 101,
-          dayIdx: 1,
-          title: '副主任医师',
-          fee: 50,
-          available: true,
-          tickets: 5,
-          totalTickets: 5,
-          avatar: imgDr3,
-          bio: '擅长领域：心律失常如室上性心动过速、心房颤动、心房扑动的射频消融治疗、起搏器安装，以及心血管内科常见病的诊治。',
-        },
-        {
-          id: 4,
-          name: '施林生',
-          campus: '东院区',
-          deptId: 101,
-          dayIdx: 0,
-          title: '主治医师',
-          fee: 12,
-          available: true,
-          tickets: 50,
-          totalTickets: 50,
-          avatar: imgDr4,
-          bio: '擅长心血管疾病的诊治，尤其擅长房颤、房速、室早、室上速及室速等复杂心律失常的导管消融，房颤左心耳封堵，缓慢心律失常的起搏治疗。',
-        },
-        {
-          id: 5,
-          name: '吴翔',
-          campus: '东院区',
-          deptId: 101,
-          dayIdx: 1,
-          title: '主任医师',
-          fee: 150,
-          available: true,
-          tickets: 10,
-          totalTickets: 10, // 补全：totalTickets
-          avatar: imgDr1,
-          bio: '擅长心血管内科疑难疾病的临床诊断及治疗。尤其是冠心病、高血压、心律失常等疾病的诊断和治疗。',
-        },
-        {
-          id: 6,
-          name: '吴翔',
-          campus: '西院区',
-          deptId: 101,
-          dayIdx: 2,
-          title: '主任医师',
-          fee: 150,
-          available: true,
-          tickets: 10,
-          totalTickets: 10, // 补全：totalTickets
-          avatar: imgDr1,
-          bio: '擅长心血管内科疑难疾病的临床诊断及治疗。尤其是冠心病、高血压、心律失常等疾病的诊断和治疗。',
-        },
-        {
-          id: 7,
-          name: '施林生',
-          campus: '西院区',
-          deptId: 101,
-          dayIdx: 1,
-          title: '主治医师',
-          fee: 12,
-          available: true,
-          tickets: 50,
-          totalTickets: 50, // 补全：totalTickets
-          avatar: imgDr4,
-          bio: '擅长心血管疾病的诊治，尤其擅长房颤、房速、室早、室上速及室速等复杂心律失常的导管消融，房颤左心耳封堵，缓慢心律失常的起搏治疗。',
-        },
-      ],
+      // 医生数据源 (将在 created 中自动填充)
+      allDoctors: [],
     }
+  },
+
+  created() {
+    // 自动生成全覆盖的模拟数据
+    this.generateMockData()
   },
 
   computed: {
@@ -257,6 +164,88 @@ export default {
   },
 
   methods: {
+    /**
+     * 逻辑功能：自动生成覆盖所有院区、科室、日期的医生数据
+     * 实现方式：遍历所有维度，循环利用 4 个基础医生模版
+     */
+    generateMockData() {
+      // 基础模版池 (复用现有的4张图片)
+      const doctorTemplates = [
+        {
+          name: '吴翔',
+          title: '主任医师',
+          fee: 150,
+          totalTickets: 10,
+          avatar: imgDr1,
+          bio: '擅长心血管内科疑难疾病的临床诊断及治疗。尤其是冠心病、高血压、心律失常等疾病的诊断和治疗。',
+        },
+        {
+          name: '盛红专',
+          title: '主任医师',
+          fee: 35,
+          totalTickets: 10,
+          avatar: imgDr2,
+          bio: '擅长心血管疑难和危重病人诊治，尤其冠心病、肥厚型心肌病和二尖瓣、主动脉瓣病变的介入治疗。',
+        },
+        {
+          name: '张剑',
+          title: '副主任医师',
+          fee: 50,
+          totalTickets: 5,
+          avatar: imgDr3,
+          bio: '擅长领域：心律失常如室上性心动过速、心房颤动、心房扑动的射频消融治疗、起搏器安装，以及心血管内科常见病的诊治。',
+        },
+        {
+          name: '施林生',
+          title: '主治医师',
+          fee: 12,
+          totalTickets: 50,
+          avatar: imgDr4,
+          bio: '擅长心血管疾病的诊治，尤其擅长房颤、房速、室早、室上速及室速等复杂心律失常的导管消融，房颤左心耳封堵，缓慢心律失常的起搏治疗。',
+        },
+      ]
+
+      let idCounter = 1
+      const generated = []
+
+      // 遍历院区
+      this.campuses.forEach((campus) => {
+        // 遍历科室
+        this.departments.forEach((dept) => {
+          // 遍历日期 (0-6)
+          this.fixedDays.forEach((_, dayIdx) => {
+            // 每个时间段生成 2-3 个医生 (基于日期取模，使不同日期人数不同)
+            const count = dayIdx % 2 === 0 ? 3 : 2
+
+            for (let i = 0; i < count; i++) {
+              // 循环从模版池取医生，避免索引越界
+              // 使用 (dept.id + dayIdx + i) 这种组合让不同页面的医生顺序看起来有点变化
+              const template =
+                doctorTemplates[(dept.id + dayIdx + i) % doctorTemplates.length]
+
+              generated.push({
+                id: idCounter++, // 唯一ID
+                campus: campus,
+                deptId: dept.id,
+                dayIdx: dayIdx,
+                name: template.name,
+                title: template.title,
+                fee: template.fee,
+                // 为了演示效果，偶数ID设为有号，奇数ID设为少量号或无号
+                available: i !== 1, // 简单的模拟：中间那个医生可能无号
+                tickets: i !== 1 ? template.totalTickets : 0,
+                totalTickets: template.totalTickets,
+                avatar: template.avatar,
+                bio: template.bio, // 暂时复用简介
+              })
+            }
+          })
+        })
+      })
+
+      this.allDoctors = generated
+    },
+
     /**
      * 逻辑功能：更新当前选中的院区
      * 通信监听：监听子组件 AppHeader 派发的 update-active-campus 事件
@@ -307,7 +296,7 @@ export default {
             target.available = false
           }
 
-          // 计算正序序号
+          // 计算正序序号 (总号源 - 当前剩余号源)
           const rank = target.totalTickets - target.tickets
 
           window.alert(
@@ -331,7 +320,6 @@ export default {
 </script>
 
 <style scoped>
-/* 样式保持不变 */
 /* 布局 */
 #app-layout {
   min-height: 100vh;

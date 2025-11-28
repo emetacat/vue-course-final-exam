@@ -54,25 +54,3 @@ ul,
 li {
   list-style: none;
 }
-
-/* =========================================
-   3. Vue 过渡动画类 (Transitions)
-   对应 <transition-group name="list">
-   ========================================= */
-/* 元素进入过程 和 离开过程 的过渡属性 */
-.list-enter-active,
-.list-leave-active {
-  transition: all 0.4s ease;
-}
-
-/* 元素进入前 和 离开后 的状态 */
-.list-enter-from,
-.list-leave-to {
-  opacity: 0;
-  transform: translateY(20px); /* 向下偏移 20px */
-}
-
-/* 元素在列表移动时的平滑过渡 (Vue 3 特性) */
-.list-move {
-  transition: transform 0.4s ease;
-}

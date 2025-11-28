@@ -57,24 +57,22 @@
 
           <!-- 医生网格 -->
           <div v-else class="doctors-grid">
-            <transition-group name="list">
-              <!-- 通信:
-                   1. Props (父 -> 子): 传递 doctor 对象
-                   2. v-on (子 -> 父): 监听 book 事件，接收子组件传回的 doctor 对象
-              -->
-              <DoctorCard
-                v-for="doc in filteredDoctors"
-                :key="doc.id"
-                :doctor="doc"
-                @book="handleBooking">
-                <!-- 通信(Slot): 插槽 -> 父组件向子组件分发 HTML 内容 (职称样式) -->
-                <template #title-badge>
-                  <span :class="['title-tag', getTitleClass(doc.title)]">
-                    {{ doc.title }}
-                  </span>
-                </template>
-              </DoctorCard>
-            </transition-group>
+            <!-- 通信:
+                  1. Props (父 -> 子): 传递 doctor 对象
+                  2. v-on (子 -> 父): 监听 book 事件，接收子组件传回的 doctor 对象
+            -->
+            <DoctorCard
+              v-for="doc in filteredDoctors"
+              :key="doc.id"
+              :doctor="doc"
+              @book="handleBooking">
+              <!-- 通信(Slot): 插槽 -> 父组件向子组件分发 HTML 内容 (职称样式) -->
+              <template #title-badge>
+                <span :class="['title-tag', getTitleClass(doc.title)]">
+                  {{ doc.title }}
+                </span>
+              </template>
+            </DoctorCard>
           </div>
         </div>
       </section>

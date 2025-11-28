@@ -1,6 +1,7 @@
 <template>
   <div class="date-tabs-container">
     <div class="tabs-wrapper">
+      <!-- 通信(Emit): 点击触发 'update:modelValue' 事件 -> 更新父组件 v-model 绑定的数据 -->
       <div
         v-for="(day, index) in days"
         :key="index"
@@ -16,11 +17,12 @@
 <script>
 export default {
   name: 'DateTabs',
+  // 通信(Props): 接收父组件传递的日期数据
+  // 通信(v-model): modelValue 是 Vue3 v-model 的默认 prop 名称
   props: {
     days: { type: Array, required: true },
     modelValue: { type: Number, required: true },
   },
-  emits: ['update:modelValue'],
 }
 </script>
 

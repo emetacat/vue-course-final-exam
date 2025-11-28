@@ -10,6 +10,7 @@
 
       <!-- 右侧 院区切换 -->
       <div class="campus-switch">
+        <!-- 通信(Emit): 点击触发 'update:activeCampus' 事件 -> 父组件更新数据 (配合 v-model 使用) -->
         <button
           v-for="camp in campuses"
           :key="camp"
@@ -25,12 +26,12 @@
 <script>
 export default {
   name: 'AppHeader',
+  // 通信(Props): 接收父组件传递的院区数据、当前选中院区和标题
   props: {
     campuses: { type: Array, required: true },
     activeCampus: { type: String, required: true },
     title: { type: String, default: '医院挂号平台' },
   },
-  emits: ['update:activeCampus'],
 }
 </script>
 

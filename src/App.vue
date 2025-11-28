@@ -1,6 +1,10 @@
 <template>
   <div id="app-layout">
     <!-- 顶部导航 -->
+    <!-- 通信: 
+         1. Props (父 -> 子): 传递 campuses, activeCampus, title
+         2. v-model (双向): 绑定 activeCampus (监听 update:activeCampus 事件)
+    -->
     <AppHeader
       :campuses="campuses"
       v-model:active-campus="currentCampus"
@@ -12,6 +16,10 @@
         <div class="sidebar-header">
           <i class="fas fa-hospital-user"></i> 选择科室
         </div>
+        <!-- 通信:
+             1. Props (父 -> 子): 传递 departments, selectedId
+             2. Event (子 -> 父): 监听 @select-dept 事件
+        -->
         <DeptList
           :departments="departments"
           :selected-id="currentDeptId"
@@ -21,6 +29,10 @@
       <!-- 右侧：主要操作区 -->
       <section class="content-area">
         <!-- 日期切换 -->
+        <!-- 通信:
+             1. Props (父 -> 子): 传递 days
+             2. v-model (双向): 绑定 currentDayIndex (监听 update:modelValue 事件)
+        -->
         <DateTabs :days="fixedDays" v-model="currentDayIndex" />
 
         <!-- 医生列表展示区 -->
@@ -45,12 +57,16 @@
           <!-- 医生网格 -->
           <div v-else class="doctors-grid">
             <transition-group name="list">
+              <!-- 通信:
+                   1. Props (父 -> 子): 传递 doctor 对象
+                   2. Event (子 -> 父): 监听 @book 事件，接收子组件传回的 doctor 对象
+              -->
               <DoctorCard
                 v-for="doc in filteredDoctors"
                 :key="doc.id"
                 :doctor="doc"
                 @book="handleBooking">
-                <!-- 插槽：不同职称显示不同颜色的边框 -->
+                <!-- 通信(Slot): 插槽 -> 父组件向子组件分发 HTML 内容 (职称样式) -->
                 <template #title-badge>
                   <span :class="['title-tag', getTitleClass(doc.title)]">
                     {{ doc.title }}

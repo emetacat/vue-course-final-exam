@@ -1,6 +1,7 @@
 <template>
   <ul class="dept-list">
     <li v-for="dept in departments" :key="dept.id" class="dept-item">
+      <!-- 通信(Emit): 点击触发 'select-dept' 事件，传递科室ID给父组件 -->
       <button
         @click="$emit('select-dept', dept.id)"
         :class="['dept-btn', { active: selectedId === dept.id }]">
@@ -13,11 +14,11 @@
 <script>
 export default {
   name: 'DeptList',
+  // 通信(Props): 接收父组件传递的科室列表数据和当前选中ID
   props: {
     departments: { type: Array, required: true },
     selectedId: { type: Number, required: true },
   },
-  emits: ['select-dept'],
 }
 </script>
 

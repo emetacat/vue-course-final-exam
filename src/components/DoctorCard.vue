@@ -19,7 +19,7 @@
         <div class="info-header">
           <h3 class="doctor-name">
             {{ doctor.name }}
-            <!-- 插槽：父组件传入的职称 Tag -->
+            <!-- 通信(Slot): 插槽 -> 接收父组件分发的 HTML 内容(职称Tag) -->
             <slot name="title-badge"></slot>
           </h3>
           <span class="fee-text">¥{{ doctor.fee }}</span>
@@ -35,7 +35,7 @@
             {{ doctor.available ? '有号' : '满号' }}
           </span>
 
-          <!-- 新增：余号展示 -->
+          <!-- 余号展示 -->
           <span class="tag tag-orange"> 余号: {{ doctor.tickets }} </span>
 
           <!-- 科室 Tag -->
@@ -44,6 +44,7 @@
           </span>
         </div>
 
+        <!-- 通信(Emit): 点击触发 'book' 事件，将当前医生对象传递给父组件 -->
         <button
           @click="$emit('book', doctor)"
           :disabled="!doctor.available"
@@ -62,10 +63,10 @@
 <script>
 export default {
   name: 'DoctorCard',
+  // 通信(Props): 接收父组件传递的单个医生对象
   props: {
     doctor: { type: Object, required: true },
   },
-  emits: ['book'],
 }
 </script>
 

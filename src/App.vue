@@ -88,11 +88,36 @@ import DeptList from './components/DeptList.vue'
 import DateTabs from './components/DateTabs.vue'
 import DoctorCard from './components/DoctorCard.vue'
 
-// 引入图片 (4张基础素材)
-import imgDr1 from './assets/心血管内科-吴翔.jpg'
-import imgDr2 from './assets/心血管内科-盛红专.jpg'
-import imgDr3 from './assets/心血管内科-张剑.jpg'
-import imgDr4 from './assets/心血管内科-施林生.jpg'
+// --- 1. 静态资源引入 ---
+// 101 心血管内科
+import img101_1 from './assets/心血管内科-吴翔.jpg'
+import img101_2 from './assets/心血管内科-盛红专.jpg'
+import img101_3 from './assets/心血管内科-张剑.jpg'
+import img101_4 from './assets/心血管内科-施林生.jpg'
+
+// 102 呼吸与危重症医学科
+import img102_1 from './assets/呼吸与危重症医学科-倪松石.jpg'
+import img102_2 from './assets/呼吸与危重症医学科-冯健.jpg'
+import img102_3 from './assets/呼吸与危重症医学科-许立芹.jpg'
+import img102_4 from './assets/呼吸与危重症医学科-周晓宇.jpg'
+
+// 103 消化内科
+import img103_1 from './assets/消化内科-倪润洲.jpg'
+import img103_2 from './assets/消化内科-陆翠华.jpg'
+import img103_3 from './assets/消化内科-石建群.jpg'
+import img103_4 from './assets/消化内科-俞智华.jpg'
+
+// 104 手外科
+import img104_1 from './assets/手外科-谭军.jpg'
+import img104_2 from './assets/手外科-邓爱东.jpg'
+import img104_3 from './assets/手外科-龚炎培.jpg'
+import img104_4 from './assets/手外科-茅天.jpg'
+
+// 105 神经外科
+import img105_1 from './assets/神经外科-施炜.jpg'
+import img105_2 from './assets/神经外科-陈建.jpg'
+import img105_3 from './assets/神经外科-杨柳.jpg'
+import img105_4 from './assets/神经外科-苏星.jpg'
 
 export default {
   name: 'App',
@@ -108,7 +133,6 @@ export default {
       campuses: ['西院区', '东院区'],
       currentCampus: '西院区',
 
-      // 对象数组 - 科室列表
       departments: [
         { id: 101, name: '心血管内科' },
         { id: 102, name: '呼吸与危重症医学科' },
@@ -135,18 +159,21 @@ export default {
   },
 
   created() {
-    // 自动生成全覆盖的模拟数据
-    this.generateMockData()
+    // 初始化时生成全覆盖的模拟数据
+    this.generateFullSchedule()
   },
 
   computed: {
+    // 计算属性：当前选中的科室名称
     currentDeptName() {
       const dept = this.departments.find((d) => d.id === this.currentDeptId)
       return dept ? dept.name : ''
     },
+    // 计算属性：当前选中的日期显示文本
     currentDayName() {
       return this.fixedDays[this.currentDayIndex]?.week || ''
     },
+    // 计算属性：核心筛选逻辑 (院区 + 科室 + 日期)
     filteredDoctors() {
       return this.allDoctors
         .filter((doc) => {
@@ -165,85 +192,211 @@ export default {
 
   methods: {
     /**
-     * 逻辑功能：自动生成覆盖所有院区、科室、日期的医生数据
-     * 实现方式：遍历所有维度，循环利用 4 个基础医生模版
+     * 逻辑功能：生成覆盖所有院区、科室、日期的排班数据
+     * 实现细节：
+     * 1. 定义各科室的医生档案池(Profiles)。
+     * 2. 遍历 2个院区 * 5个科室 * 7天。
+     * 3. 每个时间段随机(或轮询)分配 2-3 名医生。
      */
-    generateMockData() {
-      // 基础模版池 (复用现有的4张图片)
-      const doctorTemplates = [
-        {
-          name: '吴翔',
-          title: '主任医师',
-          fee: 150,
-          totalTickets: 10,
-          avatar: imgDr1,
-          bio: '擅长心血管内科疑难疾病的临床诊断及治疗。尤其是冠心病、高血压、心律失常等疾病的诊断和治疗。',
-        },
-        {
-          name: '盛红专',
-          title: '主任医师',
-          fee: 35,
-          totalTickets: 10,
-          avatar: imgDr2,
-          bio: '擅长心血管疑难和危重病人诊治，尤其冠心病、肥厚型心肌病和二尖瓣、主动脉瓣病变的介入治疗。',
-        },
-        {
-          name: '张剑',
-          title: '副主任医师',
-          fee: 50,
-          totalTickets: 5,
-          avatar: imgDr3,
-          bio: '擅长领域：心律失常如室上性心动过速、心房颤动、心房扑动的射频消融治疗、起搏器安装，以及心血管内科常见病的诊治。',
-        },
-        {
-          name: '施林生',
-          title: '主治医师',
-          fee: 12,
-          totalTickets: 50,
-          avatar: imgDr4,
-          bio: '擅长心血管疾病的诊治，尤其擅长房颤、房速、室早、室上速及室速等复杂心律失常的导管消融，房颤左心耳封堵，缓慢心律失常的起搏治疗。',
-        },
-      ]
+    generateFullSchedule() {
+      // 医生档案池配置
+      const doctorProfiles = {
+        101: [
+          {
+            name: '吴翔',
+            title: '主任医师',
+            fee: 150,
+            avatar: img101_1,
+            bio: '擅长心血管内科疑难疾病的临床诊断及治疗。尤其是冠心病、高血压、心律失常等疾病的诊断和治疗。',
+          },
+          {
+            name: '盛红专',
+            title: '主任医师',
+            fee: 100,
+            avatar: img101_2,
+            bio: '擅长心血管疑难和危重病人诊治，尤其冠心病、肥厚型心肌病和二尖瓣、主动脉瓣病变的介入治疗。',
+          },
+          {
+            name: '张剑',
+            title: '副主任医师',
+            fee: 50,
+            avatar: img101_3,
+            bio: '擅长领域：心律失常如室上性心动过速、心房颤动、心房扑动的射频消融治疗、起搏器安装。',
+          },
+          {
+            name: '施林生',
+            title: '主治医师',
+            fee: 25,
+            avatar: img101_4,
+            bio: '擅长心血管疾病的诊治，尤其擅长房颤、房速、室早、室上速及室速等复杂心律失常的导管消融。',
+          },
+        ],
+        102: [
+          {
+            name: '倪松石',
+            title: '主任医师',
+            fee: 150,
+            avatar: img102_1,
+            bio: '擅长呼吸与危重症医学科疑难和危重病人诊治以及支气管镜和辅助呼吸诊疗技术。',
+          },
+          {
+            name: '冯健',
+            title: '副主任医师',
+            fee: 60,
+            avatar: img102_2,
+            bio: '擅长呼吸系统常见病及疑难危重症疾病的诊疗，尤其是肺结节及肺部肿瘤的诊治。',
+          },
+          {
+            name: '许立芹',
+            title: '主治医师',
+            fee: 30,
+            avatar: img102_3,
+            bio: '擅长呼吸系统疾病的诊治、呼吸介入诊疗技术及辅助呼吸技术。',
+          },
+          {
+            name: '周晓宇',
+            title: '住院医师',
+            fee: 15,
+            avatar: img102_4,
+            bio: '擅长支气管肺癌、肺部感染性疾病、慢性气道疾病、睡眠呼吸暂停低通气综合征等疾病的诊治。',
+          },
+        ],
+        103: [
+          {
+            name: '倪润洲',
+            title: '主任医师',
+            fee: 140,
+            avatar: img103_1,
+            bio: '擅长消化内科疑难疾病的诊治，尤其是慢性胃炎、胃食管反流病、溃疡性结肠炎等病的中西医结合治疗。',
+          },
+          {
+            name: '陆翠华',
+            title: '副主任医师',
+            fee: 55,
+            avatar: img103_2,
+            bio: '擅长小肠疾病的小肠镜下诊断与治疗及消化道癌前病变、消化道出血的内镜下治疗。',
+          },
+          {
+            name: '石建群',
+            title: '主治医师',
+            fee: 25,
+            avatar: img103_3,
+            bio: '擅长胃肠肝胆胰等消化系统疾病的诊断、治疗及抢救。',
+          },
+          {
+            name: '俞智华',
+            title: '住院医师',
+            fee: 12,
+            avatar: img103_4,
+            bio: '擅长消化系统常见病、多发病的诊断及治疗。',
+          },
+        ],
+        104: [
+          {
+            name: '谭军',
+            title: '主任医师',
+            fee: 160,
+            avatar: img104_1,
+            bio: '擅长肩、肘、腕疾患以及小儿先天肢体畸形的诊断和治疗，尤其擅长关节镜微创手术及创面显微修复。',
+          },
+          {
+            name: '邓爱东',
+            title: '副主任医师',
+            fee: 70,
+            avatar: img104_2,
+            bio: '擅长于关节镜下微创修复各类关节运动损伤、上肢骨关节的损伤诊治及矫形重建。',
+          },
+          {
+            name: '龚炎培',
+            title: '主治医师',
+            fee: 35,
+            avatar: img104_3,
+            bio: '擅长外周神经损伤修复及后期功能重建。',
+          },
+          {
+            name: '茅天',
+            title: '住院医师',
+            fee: 18,
+            avatar: img104_4,
+            bio: '擅长腕关节、肩关节、肘关节、踝关节疾病的关节镜下微创治疗。',
+          },
+        ],
+        105: [
+          {
+            name: '施炜',
+            title: '主任医师',
+            fee: 180,
+            avatar: img105_1,
+            bio: '擅长内镜下垂体瘤等颅底肿瘤的微创手术及内镜下三叉神经痛/面肌痉挛微创手术。',
+          },
+          {
+            name: '陈建',
+            title: '副主任医师',
+            fee: 80,
+            avatar: img105_2,
+            bio: '从事神经外科专业临床工作三十余年，在颅脑外伤、脑肿瘤及脑血管病的诊断治疗上积累了丰富的临床经验。',
+          },
+          {
+            name: '杨柳',
+            title: '主治医师',
+            fee: 40,
+            avatar: img105_3,
+            bio: '擅长神经外科各类疾病的微创手术治疗。',
+          },
+          {
+            name: '苏星',
+            title: '住院医师',
+            fee: 20,
+            avatar: img105_4,
+            bio: '擅长脑肿瘤、椎管内肿瘤、颅脑创伤、脑出血和神经急危重症患者诊治。',
+          },
+        ],
+      }
 
       let idCounter = 1
-      const generated = []
+      const generatedData = []
 
-      // 遍历院区
+      // 遍历所有院区
       this.campuses.forEach((campus) => {
-        // 遍历科室
+        // 遍历所有科室
         this.departments.forEach((dept) => {
-          // 遍历日期 (0-6)
+          const profiles = doctorProfiles[dept.id] || []
+
+          // 遍历未来7天
           this.fixedDays.forEach((_, dayIdx) => {
-            // 每个时间段生成 2-3 个医生 (基于日期取模，使不同日期人数不同)
+            // 策略：每天安排 2-3 人，轮询使用医生档案
+            // 利用 dayIdx 和 dept.id 制造偏移，让不同日期的医生组合看起来不一样
             const count = dayIdx % 2 === 0 ? 3 : 2
+            const startIdx = (dept.id + dayIdx) % profiles.length
 
             for (let i = 0; i < count; i++) {
-              // 循环从模版池取医生，避免索引越界
-              // 使用 (dept.id + dayIdx + i) 这种组合让不同页面的医生顺序看起来有点变化
-              const template =
-                doctorTemplates[(dept.id + dayIdx + i) % doctorTemplates.length]
+              const profileIndex = (startIdx + i) % profiles.length
+              const profile = profiles[profileIndex]
 
-              generated.push({
-                id: idCounter++, // 唯一ID
+              // 模拟票数：为了演示，随机给 0-20 张票
+              const totalTickets = [0, 5, 10, 20, 30][(idCounter + i) % 5]
+              const tickets = totalTickets // 初始剩余等于总数
+
+              generatedData.push({
+                id: idCounter++,
                 campus: campus,
                 deptId: dept.id,
                 dayIdx: dayIdx,
-                name: template.name,
-                title: template.title,
-                fee: template.fee,
-                // 为了演示效果，偶数ID设为有号，奇数ID设为少量号或无号
-                available: i !== 1, // 简单的模拟：中间那个医生可能无号
-                tickets: i !== 1 ? template.totalTickets : 0,
-                totalTickets: template.totalTickets,
-                avatar: template.avatar,
-                bio: template.bio, // 暂时复用简介
+                name: profile.name,
+                title: profile.title,
+                fee: profile.fee,
+                avatar: profile.avatar,
+                bio: profile.bio,
+                totalTickets: totalTickets,
+                tickets: tickets,
+                available: tickets > 0,
               })
             }
           })
         })
       })
 
-      this.allDoctors = generated
+      this.allDoctors = generatedData
     },
 
     /**

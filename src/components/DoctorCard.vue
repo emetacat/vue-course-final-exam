@@ -80,7 +80,6 @@ export default {
 </script>
 
 <style scoped>
-/* 样式保持不变 */
 .doctor-card {
   background: white;
   border: 1px solid var(--border-color);
@@ -202,7 +201,6 @@ export default {
   color: var(--primary-color);
   border: 1px solid #bfdbfe;
 }
-/* 新增橙色标签样式，用于余号 */
 .tag-orange {
   background-color: #fff7ed;
   color: #c2410c;
